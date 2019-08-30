@@ -2,8 +2,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<script
-	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<!-- Angular Link -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<!-- BootStrap Link -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
 <title>Insert title here</title>
 </head>
 <body ng-app="myApp">
@@ -24,7 +30,7 @@
 			transaction_time<input type="text" name="transaction_time" ng-model="userlist.transaction_time"><br>
 			transaction_type<input type="text" name="transaction_type" ng-model="userlist.transaction_type"><br>
 			transaction_date<input type="text" name="transaction_date" ng-model="userlist.transaction_date"><br>
-			<input type="button" ng-click="save()" value="save"><br>
+			<input class="btn btn-success" type="button" ng-click="save()" value="save"><br>
 		</form>
 		</div>
 		
@@ -32,13 +38,13 @@
 		<hr>
 		<div ng-controller="deleteonecontroller">
 			<input type="text" ng-model="userlist.transaction_key">
-			<input type="button" ng-click="deleteone()" value="刪除單筆">
+			<input type="button" class="btn btn-danger" ng-click="deleteone()" value="刪除單筆">
 		</div>
 	<h1>查詢單筆</h1>
 	<hr>
 	<div ng-controller="getonecontroller">
 		<input type="text" ng-model="userlist.transaction_key"> <input type="button"
-			ng-click="findOne()" value="查詢單筆" >
+			ng-click="findOne()" class="btn btn-primary" value="查詢單筆" >
 		<table>
 			<tr>
 				<td>transaction_key</td>
@@ -54,20 +60,31 @@
 	</div>
 		<h1>查詢全部</h1>
 		<hr>
-		<input type="button" ng-click="getall()" value="查詢全部">
-		<table>
-			<tr>
-				<td>index</td>
+		<input type="button" class="btn btn-warning" ng-click="getall()" value="查詢全部"> 
+		<select ng-model="quantity" ng-change="sort()"><option ng-repeat="z in quantitylist">{{ z }}</option></select>
+		
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <li class="page-item"  ng-repeat="i in [].constructor(pagecount) track by $index" ><a class="page-link" href="#">{{ $index + 1 }}</a></li>
+  </ul>
+</nav>
+
+		<table class="table">
+			<thead class="thead-dark">
+			<tr scope="col">
+				<td >index</td>
 				<td>transaction_key</td>
 				<td>transaction_date</td>
 				<td>amount</td>
+				<td>修改</td>
 			</tr>
-			<tr ng-repeat="x in result | orderBy:'transaction_key'">
+			</thead>
+			<tr scope="col" ng-repeat="x in result | orderBy:'transaction_key' | limitTo:quantity">
 				<td>{{ $index }}</td>
 				<td>{{ x.transaction_key }}</td>
 				<td>{{ x.transaction_date }}</td>
 				<td>{{ x.amount }}</td>
-				<td ng-click="paste(x)">paste</td>
+				<td><input ng-click="paste(x)" type="button" class="btn btn-primary" value="edit"></td>
 			</tr>
 		</table>
 	</div>
@@ -75,13 +92,26 @@
 <script>
 var deletelist = "";
 var app = angular.module("myApp", []);
+var datalength = 0;
+var pagecount = 0 ;
 	app.controller("getallcontroller", function($scope, $http) {
+		$scope.quantitylist = [ 5 , 10 , 15 , 20 , 30];
 		$scope.getall = function() {
-			$http.get("http://localhost:8080/TestGit/Transaction/GET/records").then(function(response) {
+			$http.get("http://localhost:8080/Projectname/Transaction/GET/records").then(function(response) {
 						$scope.result = response.data;
-						console.log($scope.result);
+						datalength = response.data.length;
 			});
 		};
+		$scope.sort = function(){
+			if (datalength % $scope.quantity != 0){
+				pagecount = Math.floor(datalength / $scope.quantity) + 1
+				$scope.pagecount = pagecount;
+			} else {
+				pagecount = datalength / $scope.quantity ;
+				$scope.pagecount = pagecount;
+			}
+		};
+
 		$scope.paste = function(x) {
 		    $scope.userlist = {
 		    		   transaction_key: x.transaction_key,
@@ -100,14 +130,14 @@ var app = angular.module("myApp", []);
 	});
 	app.controller("getonecontroller", function($scope, $http) {
 		$scope.findOne = function() {
-			$http.get("http://localhost:8080/TestGit/Transaction/GET/record/"+ $scope.userlist.transaction_key).then(function(response) {
+			$http.get("http://localhost:8080/Projectname/Transaction/GET/record/"+ $scope.userlist.transaction_key).then(function(response) {
 				$scope.Onedata = response.data;
 			});
 		};
 	});
 	app.controller('savecontroller',function($scope,$http) {
 		$scope.save = function(){
-			$http.post("http://localhost:8080/TestGit/Transaction/POST/items",$scope.userlist).then(function(response){
+			$http.post("http://localhost:8080/Projectname/Transaction/POST/items",$scope.userlist).then(function(response){
 				alert("finished");
 			})
 			console.log($scope.userlist);
@@ -118,7 +148,7 @@ var app = angular.module("myApp", []);
 			$scope.deletelist = {
 				transaction_key : $scope.userlist.transaction_key
 			}
-			$http.post("http://localhost:8080/TestGit/Transaction/DELETE/item",$scope.deletelist).then(function(response){
+			$http.post("http://localhost:8080/Projectname/Transaction/DELETE/item",$scope.deletelist).then(function(response){
 				alert(response.data);
 			})
 		};
