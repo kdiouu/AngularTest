@@ -77,7 +77,7 @@ var deletelist = "";
 var app = angular.module("myApp", []);
 	app.controller("getallcontroller", function($scope, $http) {
 		$scope.getall = function() {
-			$http.get("http://localhost:8080/Projectname/Transaction/GET/records").then(function(response) {
+			$http.get("http://localhost:8080/TestGit/Transaction/GET/records").then(function(response) {
 						$scope.result = response.data;
 						console.log($scope.result);
 			});
@@ -100,14 +100,14 @@ var app = angular.module("myApp", []);
 	});
 	app.controller("getonecontroller", function($scope, $http) {
 		$scope.findOne = function() {
-			$http.get("http://localhost:8080/Projectname/Transaction/GET/record/"+ $scope.userlist.transaction_key).then(function(response) {
+			$http.get("http://localhost:8080/TestGit/Transaction/GET/record/"+ $scope.userlist.transaction_key).then(function(response) {
 				$scope.Onedata = response.data;
 			});
 		};
 	});
 	app.controller('savecontroller',function($scope,$http) {
 		$scope.save = function(){
-			$http.post("http://localhost:8080/Projectname/Transaction/POST/items",$scope.userlist).then(function(response){
+			$http.post("http://localhost:8080/TestGit/Transaction/POST/items",$scope.userlist).then(function(response){
 				alert("finished");
 			})
 			console.log($scope.userlist);
@@ -118,7 +118,7 @@ var app = angular.module("myApp", []);
 			$scope.deletelist = {
 				transaction_key : $scope.userlist.transaction_key
 			}
-			$http.post("http://localhost:8080/Projectname/Transaction/DELETE/item",$scope.deletelist).then(function(response){
+			$http.post("http://localhost:8080/TestGit/Transaction/DELETE/item",$scope.deletelist).then(function(response){
 				alert(response.data);
 			})
 		};
