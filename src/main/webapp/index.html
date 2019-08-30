@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<title>Insert title here</title>
+</head>
+<body ng-app="myApp">
+
+
+
+	<h1>新增單筆</h1>
+	<hr>
+	<div ng-controller="getallcontroller">
+		<div ng-controller="savecontroller">
+		<form name="formex">
+			transaction_id<input type="text" name="transaction_id" ng-model="userlist.transaction_id"><br>
+			account_key <input type="text" name="account_key" ng-model="userlist.account_key"><br>
+			amount <input type="text" name="amount" ng-model="userlist.amount"><br>
+			channel_type<input type="text" name="channel_type" ng-model="userlist.channel_type"><br>
+			currency_code<input type="text" name="currency_code" ng-model="userlist.currency_code"><br>
+			transaction_key<input type="text" name="transaction_key" ng-model="userlist.transaction_key"><br>
+			transaction_time<input type="text" name="transaction_time" ng-model="userlist.transaction_time"><br>
+			transaction_type<input type="text" name="transaction_type" ng-model="userlist.transaction_type"><br>
+			transaction_date<input type="text" name="transaction_date" ng-model="userlist.transaction_date"><br>
+			<input type="button" ng-click="save()" value="save"><br>
+		</form>
+		</div>
+		
+		<h1>刪除資料</h1>
+		<hr>
+		<div ng-controller="deleteonecontroller">
+			<input type="text" ng-model="userlist.transaction_key">
+			<input type="button" ng-click="deleteone()" value="刪除單筆">
+		</div>
+	<h1>查詢單筆</h1>
+	<hr>
+	<div ng-controller="getonecontroller">
+		<input type="text" ng-model="userlist.transaction_key"> <input type="button"
+			ng-click="findOne()" value="查詢單筆" >
+		<table>
+			<tr>
+				<td>transaction_key</td>
+				<td>transaction_date</td>
+				<td>amount</td>
+			</tr>
+			<tr>
+				<td>{{ Onedata.transaction_key }}</td>
+				<td>{{ Onedata.transaction_date }}</td>
+				<td>{{ Onedata.amount }}</td>
+			</tr>
+		</table>
+	</div>
+		<h1>查詢全部</h1>
+		<hr>
+		<input type="button" ng-click="getall()" value="查詢全部">
+		<table>
+			<tr>
+				<td>index</td>
+				<td>transaction_key</td>
+				<td>transaction_date</td>
+				<td>amount</td>
+			</tr>
+			<tr ng-repeat="x in result | orderBy:'transaction_key'">
+				<td>{{ $index }}</td>
+				<td>{{ x.transaction_key }}</td>
+				<td>{{ x.transaction_date }}</td>
+				<td>{{ x.amount }}</td>
+				<td ng-click="paste(x)">paste</td>
+			</tr>
+		</table>
+	</div>
+</body>
+<script>
+var deletelist = "";
+var app = angular.module("myApp", []);
+	app.controller("getallcontroller", function($scope, $http) {
+		$scope.getall = function() {
+			$http.get("http://localhost:8080/Projectname/Transaction/GET/records").then(function(response) {
+						$scope.result = response.data;
+						console.log($scope.result);
+			});
+		};
+		$scope.paste = function(x) {
+		    $scope.userlist = {
+		    		   transaction_key: x.transaction_key,
+		    		   account_key: "test",
+		    		   amount: x.amount,
+		    		   channel_type: x.channel_type,
+		    		   currency_code: x.currency_code,
+		    		   transaction_time: x.transaction_time,
+		    		   transaction_type: x.transaction_type,
+		    		   transaction_id: x.transaction_id,
+		    		   transaction_date : x.transaction_date
+		      				   };
+			};
+		
+
+	});
+	app.controller("getonecontroller", function($scope, $http) {
+		$scope.findOne = function() {
+			$http.get("http://localhost:8080/Projectname/Transaction/GET/record/"+ $scope.userlist.transaction_key).then(function(response) {
+				$scope.Onedata = response.data;
+			});
+		};
+	});
+	app.controller('savecontroller',function($scope,$http) {
+		$scope.save = function(){
+			$http.post("http://localhost:8080/Projectname/Transaction/POST/items",$scope.userlist).then(function(response){
+				alert("finished");
+			})
+			console.log($scope.userlist);
+		}
+	});
+	app.controller("deleteonecontroller",function($scope,$http){
+		$scope.deleteone = function(){
+			$scope.deletelist = {
+				transaction_key : $scope.userlist.transaction_key
+			}
+			$http.post("http://localhost:8080/Projectname/Transaction/DELETE/item",$scope.deletelist).then(function(response){
+				alert(response.data);
+			})
+		};
+	});	
+
+</script>
+</html>
